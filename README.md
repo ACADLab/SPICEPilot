@@ -59,7 +59,7 @@ Each circuit is evaluated based on accuracy, functional compliance, and ability 
 
 ### Experimental Results
 
-SPICEPilot outperforms prior models like AnalogCoder in SPICE code generation accuracy and robustness, achieving higher success rates across all difficulty levels and circuit types. See our published [arXiv paper](https://arxiv.org/abs/ICRC_24_arXiv) for detailed results and comparisons.
+SPICEPilot outperforms prior models like AnalogCoder in SPICE code generation accuracy and robustness, achieving higher success rates across all difficulty levels and circuit types. See our published [tobeupdated](tobeupdatted) for detailed results and comparisons.
 
 ## Limitations & Future Work
 
