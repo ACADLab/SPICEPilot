@@ -1,6 +1,9 @@
+# SPICEPilot Benchmark
+
 Below is a list of circuits suitable for SPICE simulation, categorized by complexity levels based on the number of MOSFET transistors used.
 
 *There are many circuits listed below only the first are considered as SPICEPilot benchmarkings and others are for future consideration and enhancement. Bench-mark is not just analog and contatin digital and mixed signal circuits as well.*
+
 ---
 
 ### **Easy Level (<10 Transistors)**
