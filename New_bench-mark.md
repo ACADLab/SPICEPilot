@@ -1,7 +1,4 @@
-Here are the list of circuits we can implement to reach [[Goal]] 
-
----
-Below is a list of circuits suitable for SPICE simulation, categorized by complexity levels based on the number of MOSFET transistors used. Each circuit includes a brief description focusing on how it's realized using NMOS, PMOS, or CMOS technology to aid in your understanding and implementation.
+Below is a list of circuits suitable for SPICE simulation, categorized by complexity levels based on the number of MOSFET transistors used.
 
 ---
 
