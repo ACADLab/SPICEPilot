@@ -12,7 +12,6 @@
 - [Key Features](#key-features)
 - [Installation](#installation)
 - [Getting Started](#getting-started)
-- [Usage](#usage)
 - [Benchmarking & Performance](#benchmarking--performance)
 - [Limitations & Future Work](#limitations--future-work)
 - [Contributing](#contributing)
