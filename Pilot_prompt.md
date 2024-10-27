@@ -201,7 +201,7 @@ plt.show()
 
 
 7. **Handling Python Keyword Conflicts**:
-   - Avoid using Python reserved words for node names or component labels. If conflicts arise, append an underscore (`_`) to the name, e.g., `model_`, `lambda_`.
+   - Avoid using Python reserved words for node names or component labels. If conflicts arise, append an underscore (`_`) to the name, e.g., `model_`, `lambda_`, `is_`, `in_`.
    - PySpice accepts attributes with underscores for this reason.
 
 8. **Error Prevention and Troubleshooting**:
