@@ -59,7 +59,7 @@ Each circuit is evaluated based on accuracy, functional compliance, and ability 
 
 ### Experimental Results
 
-SPICEPilot outperforms prior models like AnalogCoder in SPICE code generation accuracy and robustness, achieving higher success rates across all difficulty levels and circuit types. See our published [tobeupdated](tobeupdatted) for detailed results and comparisons.
+SPICEPilot outperforms prior models like AnalogCoder in SPICE code generation accuracy and robustness, achieving higher success rates across all difficulty levels and circuit types. See our published [paper](https://arxiv.org/pdf/2410.20553) for detailed results and comparisons.
 
 ## Limitations & Future Work
 
@@ -73,3 +73,13 @@ Plans include implementing multi-modal capabilities, enabling the model to inter
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+## Citation
+If you like this work or use this work in ayour research please cite it as follows, formal format will be updated after publication or release:
+```
+@article{vungarala2024spicepilot,
+  title={SPICEPilot: Navigating SPICE Code Generation and Simulation with AI Guidance},
+  author={Vungarala, Deepak and Alam, Sakila and Ghosh, Arnob and Angizi, Shaahin},
+  journal={arXiv preprint arXiv:2410.20553},
+  year={2024}
+}
+```
