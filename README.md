@@ -73,8 +73,9 @@ Plans include implementing multi-modal capabilities, enabling the model to inter
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
 ## Citation
-If you like this work or use this work in ayour research please cite it as follows, formal format will be updated after publication or release:
+If you like or use this work in your research please cite it as follows, formal format will be updated after publication or release:
 ```
 @article{vungarala2024spicepilot,
   title={SPICEPilot: Navigating SPICE Code Generation and Simulation with AI Guidance},
