@@ -40,7 +40,7 @@ To run SPICEPilot, please ensure you have Python 3.8 or above installed. Follow 
 
 
 3. **Setup PySpice**
-   - SPICEPilot requires PySpice to run simulations. Instructions for installing PySpice can be found [here](https://pyspice.fabrice-salvaire.fr/installation.html).
+   - SPICEPilot requires PySpice to run simulations. Instructions for installing PySpice can be found [here](https://pyspice.fabrice-salvaire.fr/releases/v1.4/overview.html).
 
 ## Getting Started
 ### Example usage
