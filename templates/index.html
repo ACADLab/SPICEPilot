@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPICEPilot — AI Circuit Simulator</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --accent: #00ff88;
+    --accent-dim: #00cc6a;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --error: #f85149;
+    --warn: #e3b341;
+    --info: #58a6ff;
+    --terminal: #0d1117;
+    --font-mono: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+    --radius: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--accent);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { color: var(--text-muted); font-weight: 400; }
+
+  .tagline {
+    color: var(--text-muted);
+    font-size: 13px;
+    border-left: 1px solid var(--border);
+    padding-left: 16px;
+  }
+
+  /* ── Main layout ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 16px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-body { padding: 16px; }
+
+  /* ── Provider toggle ── */
+  .provider-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .provider-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface2);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .provider-btn:hover { border-color: var(--accent); color: var(--text); }
+  .provider-btn.active {
+    background: rgba(0,255,136,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ── Form controls ── */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+  .input-wrap { position: relative; }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,255,136,0.1);
+  }
+
+  input[type="password"] { padding-right: 40px; font-family: var(--font-mono); }
+
+  .eye-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 2px;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .eye-btn:hover { color: var(--text); }
+
+  select option { background: var(--surface2); }
+
+  /* ── Prompt area ── */
+  textarea {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.5;
+  }
+
+  .prompt-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    gap: 12px;
+  }
+
+  .char-count { font-size: 11px; color: var(--text-muted); }
+
+  /* ── Simulate button ── */
+  .simulate-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .simulate-btn:hover:not(:disabled) { background: var(--accent-dim); }
+  .simulate-btn:disabled {
+    background: var(--border);
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+
+  /* ── Status line ── */
+  .status-line {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  .status-line.visible { display: flex; }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Example prompts ── */
+  .examples { margin-top: 8px; }
+  .examples-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  .example-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Error alert ── */
+  .error-alert {
+    display: none;
+    background: rgba(248,81,73,0.1);
+    border: 1px solid var(--error);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    color: var(--error);
+    font-size: 13px;
+  }
+  .error-alert.visible { display: block; }
+
+  /* ── Results section ── */
+  #results { display: none; }
+  #results.visible { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── Code blocks ── */
+  .code-wrap {
+    position: relative;
+    background: var(--terminal);
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+
+  pre {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.6;
+    padding: 16px;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--text);
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  /* Simple Python syntax highlighting */
+  .kw { color: #ff7b72; }   /* keywords */
+  .str { color: #a5d6ff; }  /* strings */
+  .cm { color: #8b949e; }   /* comments */
+  .fn { color: #d2a8ff; }   /* functions */
+  .nu { color: #79c0ff; }   /* numbers */
+
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { color: var(--accent); border-color: var(--accent); }
+
+  /* ── Plots grid ── */
+  .plots-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .plot-item {
+    position: relative;
+    flex: 1 1 400px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .plot-item img { width: 100%; display: block; }
+
+  .plot-download {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.7);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--text);
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .plot-download:hover { background: rgba(0,255,136,0.2); border-color: var(--accent); }
+
+  .no-plots {
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* ── Terminal output ── */
+  .terminal-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .tab-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .terminal-content { display: none; }
+  .terminal-content.active { display: block; }
+
+  .terminal-pre {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #00ff88;
+    background: var(--terminal);
+    padding: 16px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .terminal-pre.stderr { color: #ffa657; }
+  .terminal-pre.empty { color: var(--text-muted); font-style: italic; }
+
+  /* ── Success badge ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .badge.success { background: rgba(0,255,136,0.15); color: var(--accent); }
+  .badge.fail { background: rgba(248,81,73,0.15); color: var(--error); }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface2); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .logo { font-size: 20px; }
+    .tagline { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">SPICE<span>Pilot</span></div>
+  <div class="tagline">AI-Powered SPICE Circuit Simulation · Bring Your Own Key</div>
+</header>
+
+<main>
+
+  <!-- ── Config card ── -->
+  <div class="card">
+    <div class="card-header">API Configuration</div>
+    <div class="card-body">
+      <div class="provider-toggle">
+        <button class="provider-btn active" id="btn-anthropic" onclick="selectProvider('anthropic')">
+          🤖 Anthropic Claude
+        </button>
+        <button class="provider-btn" id="btn-openai" onclick="selectProvider('openai')">
+          ✨ OpenAI GPT
+        </button>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>API Key</label>
+          <div class="input-wrap">
+            <input type="password" id="api-key" placeholder="sk-ant-... or sk-..." autocomplete="off">
+            <button class="eye-btn" onclick="toggleKeyVisibility()" title="Show/hide key">👁</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Model</label>
+          <select id="model-select"></select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Prompt card ── -->
+  <div class="card">
+    <div class="card-header">Circuit Description</div>
+    <div class="card-body">
+      <div class="form-group">
+        <textarea id="prompt"
+          placeholder="Describe your circuit... e.g., 'Design a CMOS differential amplifier with a current mirror load, 5V supply, 100kHz sinusoidal input at 10mV amplitude. Show AC frequency response (Bode plot) from 1Hz to 1GHz and transient response.'"></textarea>
+      </div>
+
+      <div class="examples">
+        <div class="examples-label">Quick examples:</div>
+        <div class="example-chips">
+          <span class="chip" onclick="setPrompt(this)">CMOS inverter transient analysis</span>
+          <span class="chip" onclick="setPrompt(this)">NMOS current mirror with cascode, DC sweep</span>
+          <span class="chip" onclick="setPrompt(this)">Two-stage op-amp Bode plot, gain and phase margin</span>
+          <span class="chip" onclick="setPrompt(this)">3-stage ring oscillator, 5V supply</span>
+          <span class="chip" onclick="setPrompt(this)">Low dropout regulator, 5V to 3.3V, 100mA load</span>
+          <span class="chip" onclick="setPrompt(this)">CMOS NAND gate with two pulse inputs, transient</span>
+          <span class="chip" onclick="setPrompt(this)">Sample and hold circuit, 100kHz input, 1MHz clock</span>
+          <span class="chip" onclick="setPrompt(this)">D flip-flop transient, clock and data waveforms</span>
+        </div>
+      </div>
+
+      <div class="prompt-footer">
+        <div class="status-line" id="status-line">
+          <div class="spinner"></div>
+          <span id="status-text">Calling LLM...</span>
+          <span id="elapsed-timer" style="color:var(--text-muted);margin-left:4px"></span>
+        </div>
+        <div class="char-count"><span id="char-count">0</span> chars</div>
+        <button class="simulate-btn" id="simulate-btn" onclick="runSimulation()">
+          ⚡ Simulate
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Error alert ── -->
+  <div class="error-alert" id="error-alert"></div>
+
+  <!-- ── Results ── -->
+  <div id="results">
+
+    <!-- Generated PySpice Code -->
+    <div class="card">
+      <div class="card-header">
+        Generated PySpice Code
+        <span id="sim-status-badge" class="badge"></span>
+      </div>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode('pyspice-code', this)">Copy</button>
+        <pre id="pyspice-code"></pre>
+      </div>
+    </div>
+
+    <!-- Raw SPICE Netlist -->
+    <div class="card">
+      <div class="card-header">Raw SPICE Netlist</div>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode('spice-netlist', this)">Copy</button>
+        <pre id="spice-netlist"></pre>
+      </div>
+    </div>
+
+    <!-- Waveform Plots -->
+    <div class="card">
+      <div class="card-header">Waveform Plots</div>
+      <div id="plots-container"></div>
+    </div>
+
+    <!-- Simulation Output -->
+    <div class="card">
+      <div class="card-header">Simulation Output</div>
+      <div class="terminal-tabs">
+        <button class="tab-btn active" onclick="switchTab('stdout')">stdout</button>
+        <button class="tab-btn" onclick="switchTab('stderr')">stderr</button>
+      </div>
+      <div id="tab-stdout" class="terminal-content active">
+        <pre class="terminal-pre" id="stdout-pre"></pre>
+      </div>
+      <div id="tab-stderr" class="terminal-content">
+        <pre class="terminal-pre stderr" id="stderr-pre"></pre>
+      </div>
+    </div>
+
+  </div><!-- /results -->
+
+</main>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let selectedProvider = 'anthropic';
+let elapsedInterval = null;
+let startTime = 0;
+
+const MODELS = {
+  anthropic: [
+    { value: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5 (fastest, cheapest)' },
+    { value: 'claude-sonnet-4-6',         label: 'Claude Sonnet 4.6 (balanced)' },
+    { value: 'claude-opus-4-6',           label: 'Claude Opus 4.6 (most capable)' },
+  ],
+  openai: [
+    { value: 'gpt-4o-mini', label: 'GPT-4o Mini (fastest, cheapest)' },
+    { value: 'gpt-4o',      label: 'GPT-4o (balanced)' },
+  ]
+};
+
+// ── Init ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  selectProvider('anthropic');
+  document.getElementById('prompt').addEventListener('input', updateCharCount);
+  updateCharCount();
+});
+
+// ── Provider selection ────────────────────────────────────────────────────
+function selectProvider(provider) {
+  selectedProvider = provider;
+  document.getElementById('btn-anthropic').classList.toggle('active', provider === 'anthropic');
+  document.getElementById('btn-openai').classList.toggle('active', provider === 'openai');
+
+  const sel = document.getElementById('model-select');
+  sel.innerHTML = '';
+  MODELS[provider].forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.value;
+    opt.textContent = m.label;
+    sel.appendChild(opt);
+  });
+
+  // Update API key placeholder
+  const key = document.getElementById('api-key');
+  key.placeholder = provider === 'anthropic' ? 'sk-ant-api...' : 'sk-proj-...';
+}
+
+// ── Key visibility ────────────────────────────────────────────────────────
+function toggleKeyVisibility() {
+  const inp = document.getElementById('api-key');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ── Quick examples ────────────────────────────────────────────────────────
+function setPrompt(el) {
+  document.getElementById('prompt').value = el.textContent.trim();
+  updateCharCount();
+}
+
+function updateCharCount() {
+  const n = document.getElementById('prompt').value.length;
+  document.getElementById('char-count').textContent = n;
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b =>
+    b.classList.toggle('active', b.getAttribute('onclick').includes(name)));
+  document.querySelectorAll('.terminal-content').forEach(c =>
+    c.classList.toggle('active', c.id === 'tab-' + name));
+}
+
+// ── Copy code ─────────────────────────────────────────────────────────────
+function copyCode(elementId, btn) {
+  const text = document.getElementById(elementId).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── Loading state ─────────────────────────────────────────────────────────
+function setLoading(loading, statusText) {
+  const btn = document.getElementById('simulate-btn');
+  const statusLine = document.getElementById('status-line');
+  const statusEl = document.getElementById('status-text');
+
+  btn.disabled = loading;
+  btn.textContent = loading ? '⏳ Simulating...' : '⚡ Simulate';
+
+  if (loading) {
+    statusLine.classList.add('visible');
+    statusEl.textContent = statusText || 'Working...';
+    startTime = Date.now();
+    elapsedInterval = setInterval(() => {
+      const s = ((Date.now() - startTime) / 1000).toFixed(0);
+      document.getElementById('elapsed-timer').textContent = `(${s}s)`;
+    }, 500);
+  } else {
+    statusLine.classList.remove('visible');
+    document.getElementById('elapsed-timer').textContent = '';
+    if (elapsedInterval) { clearInterval(elapsedInterval); elapsedInterval = null; }
+  }
+}
+
+// ── Error display ─────────────────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById('error-alert');
+  el.textContent = '⚠ ' + msg;
+  el.classList.add('visible');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function clearError() {
+  document.getElementById('error-alert').classList.remove('visible');
+}
+
+// ── Simple syntax highlighter ─────────────────────────────────────────────
+function highlight(code) {
+  const escape = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  let html = escape(code);
+
+  // Comments
+  html = html.replace(/(#[^\n]*)/g, '<span class="cm">$1</span>');
+  // Strings (simple, single-line)
+  html = html.replace(/("""[\s\S]*?"""|'''[\s\S]*?'''|"[^"\\]*"|'[^'\\]*')/g,
+    '<span class="str">$1</span>');
+  // Keywords
+  const kws = ['from','import','def','class','return','if','else','elif','for',
+                'while','try','except','with','as','in','not','and','or','True',
+                'False','None','lambda','pass','raise','break','continue'];
+  kws.forEach(kw => {
+    html = html.replace(new RegExp(`\\b(${kw})\\b`, 'g'), '<span class="kw">$1</span>');
+  });
+  // Numbers (units like @u_V)
+  html = html.replace(/(@u_\w+|\d+\.?\d*(?:e[+-]?\d+)?)/g, '<span class="nu">$1</span>');
+  // Function calls
+  html = html.replace(/(\w+)(?=\()/g, '<span class="fn">$1</span>');
+
+  return html;
+}
+
+// ── Display results ───────────────────────────────────────────────────────
+function displayResults(data) {
+  clearError();
+
+  // Show results section
+  const results = document.getElementById('results');
+  results.classList.add('visible');
+
+  // Status badge
+  const badge = document.getElementById('sim-status-badge');
+  if (data.success) {
+    badge.className = 'badge success';
+    badge.textContent = '✓ Simulation OK';
+  } else {
+    badge.className = 'badge fail';
+    badge.textContent = '✗ Simulation Failed';
+    if (data.error) showError(data.error);
+  }
+
+  // PySpice code
+  const codeEl = document.getElementById('pyspice-code');
+  if (data.pyspice_code) {
+    codeEl.innerHTML = highlight(data.pyspice_code);
+  } else {
+    codeEl.textContent = '(no code generated)';
+  }
+
+  // SPICE netlist
+  const netEl = document.getElementById('spice-netlist');
+  if (data.spice_netlist) {
+    netEl.textContent = data.spice_netlist;
+  } else {
+    netEl.textContent = '(netlist could not be extracted — simulation may have failed before circuit was built)';
+    netEl.style.color = 'var(--text-muted)';
+  }
+
+  // Plots
+  const plotsContainer = document.getElementById('plots-container');
+  plotsContainer.innerHTML = '';
+  if (data.plots && data.plots.length > 0) {
+    const grid = document.createElement('div');
+    grid.className = 'plots-grid';
+    data.plots.forEach((b64, i) => {
+      const item = document.createElement('div');
+      item.className = 'plot-item';
+      const img = document.createElement('img');
+      img.src = b64;
+      img.alt = `Waveform plot ${i + 1}`;
+      const dl = document.createElement('a');
+      dl.href = b64;
+      dl.download = `spicepilot_plot_${i + 1}.png`;
+      dl.className = 'plot-download';
+      dl.textContent = '⬇ Download';
+      item.appendChild(img);
+      item.appendChild(dl);
+      grid.appendChild(item);
+    });
+    plotsContainer.appendChild(grid);
+  } else {
+    plotsContainer.innerHTML = '<div class="no-plots">No waveform plots were generated. ' +
+      'Ensure your circuit code calls plt.show() or check the simulation output for errors.</div>';
+  }
+
+  // Terminal output
+  const stdoutEl = document.getElementById('stdout-pre');
+  const stderrEl = document.getElementById('stderr-pre');
+
+  if (data.stdout) {
+    stdoutEl.textContent = data.stdout;
+    stdoutEl.classList.remove('empty');
+  } else {
+    stdoutEl.textContent = '(no stdout output)';
+    stdoutEl.classList.add('empty');
+  }
+
+  if (data.stderr) {
+    stderrEl.textContent = data.stderr;
+    stderrEl.classList.remove('empty');
+  } else {
+    stderrEl.textContent = '(no stderr output)';
+    stderrEl.classList.add('empty');
+  }
+
+  // Scroll to results
+  results.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── Main simulation call ──────────────────────────────────────────────────
+async function runSimulation() {
+  const apiKey = document.getElementById('api-key').value.trim();
+  const model = document.getElementById('model-select').value;
+  const prompt = document.getElementById('prompt').value.trim();
+
+  if (!apiKey) { showError('Please enter your API key.'); return; }
+  if (!prompt) { showError('Please describe the circuit you want to simulate.'); return; }
+
+  clearError();
+  setLoading(true, 'Calling LLM to generate circuit code...');
+
+  // Update status after 5s (likely in simulation phase)
+  const statusTimer = setTimeout(() => {
+    document.getElementById('status-text').textContent = 'Running ngspice simulation...';
+  }, 8000);
+
+  try {
+    const response = await fetch('/simulate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: selectedProvider,
+        api_key: apiKey,
+        model: model,
+        prompt: prompt
+      })
+    });
+
+    clearTimeout(statusTimer);
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+      throw new Error(err.error || `Server error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    displayResults(data);
+
+  } catch (err) {
+    clearTimeout(statusTimer);
+    showError(err.message || 'Network error — is the Flask server running?');
+  } finally {
+    setLoading(false);
+  }
+}
+
+// ── Keyboard shortcut: Ctrl+Enter to simulate ────────────────────────────
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    if (!document.getElementById('simulate-btn').disabled) runSimulation();
+  }
+});
+</script>
+
+</body>
+</html>
